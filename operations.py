@@ -286,6 +286,7 @@ def euclide_etendue(L1, L2):
         x=g
     return L1,x,y #on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
 
+
 def passage_binaire(l1):
     L1=deepcopy(l1)
     res=[]
@@ -298,16 +299,6 @@ def passage_binaire(l1):
         res=[1]+res
     return(res)
 
-def expodentation(l1,exposant):##attendtion l'exposant est une liste
-    L1=deepcopy(l1)
-    res=L1
-    expobinaire=passage_binaire(exposant)
-    for i in range (1,len(expobinaire)):
-        res=multiplication(res,res)
-        if expobinaire[i]==1:
-            res=multiplication(res,L1)
-
-    return(res)
 
 def expodentationmodulaire(l1,exposant,module):
     L1=deepcopy(l1)
