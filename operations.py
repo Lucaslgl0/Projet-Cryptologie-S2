@@ -32,7 +32,7 @@ def NombreToListe(chiffre):
 
 def soustraction(
     L1, L2, base=10
-):  ## les test marchent j'espere que tout marche pour la base 2 j'ai eu peur de devoir passer par le complementaire
+):  # les test marchent j'espere que tout marche pour la base 2 j'ai eu peur de devoir passer par le complementaire
     if EstPlusGrand(L2, L1):
         L1, L2 = L2, L1
     taille1 = len(L1)
@@ -50,7 +50,7 @@ def soustraction(
     if compteur == 1:
         L1[taille1 - taille2 - 1] -= 1
     new = L1[: (taille1 - taille2)] + new
-    supprime_zéros(new)  ##important pour la base 2
+    supprime_zéros(new)  # important pour la base 2
     return new
 
 
@@ -94,7 +94,7 @@ def change_retenue(L, base=10):  # Notre fonction retenue
             return L
         else:
             L[-1] = 0
-        return change_retenue(L[:-1], base) + [L[-1]]  ##NE PAS OUBLIER LA BASE!!
+        return change_retenue(L[:-1], base) + [L[-1]]  # NE PAS OUBLIER LA BASE!!
 
 
 def multiplication(L1, L2):
@@ -163,42 +163,79 @@ def listedepremier(n):
     return res
 
 
-def division(l1, l2):
-    L1 = deepcopy(l1)
+def division(l1, l2):  # principe comme au college division euclidienne
+    L1 = deepcopy(
+        l1
+    )  # On vas modifier les lites dans ce programme mieux vaux ne pas rendre le bon resultat et travailler apres avec des mauvaises liste
     L2 = deepcopy(l2)
     Q = []
-    R = []
-    while EstPlusGrand(L1, L2):
-        decoupage = L1[: ((len(L2) + 1))]  ##prog marche pas pour liste de meme taille
+    retenue = 0
+    while EstPlusGrand(L1, L2) or (
+        L1[0] == 0 and len(L1) > 1
+    ):  # le or L1[0] == 0 permet que si on as retourner un liste ayant que des 0 le programme tourne toujour
 
+        decoupage = L1[
+            : ((len(L2) + 1 + retenue))
+        ]  # prog marche pas pour liste de meme taille
+        # le decoupage permet de faire comme pour la division euclidienne on prend seulement le premeir nombre ayant plus de chiffre que le diviseur(pour cela +1)
+        # le plus retenue c'est pour les cas particuliers dans le cas ou la nouvelle liste etais plus petite exemple 2639696/5256 il faut mettre un 0 en 2eme position
+        retenue = 0
         decoupage = supprime_zéros(decoupage)
-        print("decpooupa", decoupage)
 
         i = [1]
         while EstPlusGrand(decoupage, multiplication(i, L2)):
 
-            i = addition(i, [1])
+            i = addition(
+                i, [1]
+            )  # on cherche le mutiple qui vas rendre l2 plus granq que le decoupage
 
-        newdecoupage = soustraction(decoupage, multiplication(L2, soustraction(i, [1])))
+        x = deepcopy(
+            i
+        )  # ragoujeter a voir c'etais chaud car av i et il changeais pour raison inconnue
+        newdecoupage = soustraction(
+            decoupage, multiplication(L2, soustraction(x, [1]))
+        )  # le decoupage que l'on gardre apres la soustraction attention i-1
 
         for j in range(
             len(L2) + 1
-        ):  ##voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes
-            L1.pop(0)
+        ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes et on vire les element de L1 l'on remplace par newdecoupage
+            if len(L1) != 0:
+                L1.pop(0)
+                if L1 == [
+                    0 for q in range(len(L1))
+                ]:  # ATTETION RAJOUTER MAIS CAS PARTICULIER A VOIR SI IL PEUT PAS Y AVOIR D'AUTRE MOMENT OU CA BEUG
+                    Q = Q + soustraction(i, [1])
+                    for s in range(len(L1)):
+                        Q = Q + [0]
+                    break
+
         newdecoupage = supprime_zéros(newdecoupage)
+        """for j in range (len(L1)):##rajouter
+            if L1[0]==0:
+                retenue.append(0)
+                L1.pop(0)
+            else:
+                break"""
+
+        if L1 != []:
+            if EstPlusGrand(L2, newdecoupage + [L1[0]]):
+                retenue += 1  # creation de la retenue si il faut
         L1 = newdecoupage + L1
-        supprime_zéros(L1)
 
         Q = Q + soustraction(i, [1])
-        print(Q)
 
-    reste = soustraction(l1, multiplication(Q, l2))
+        for j in range(retenue):
+            Q = Q + [0]
+
+    reste = soustraction(
+        l1, multiplication(Q, l2)
+    )  # a partir de la c'est siple plus qu'une soustraction pour trouver le reste
     supprime_zéros(reste)
     if reste == l2:
         Q = addition(Q, [1])
         reste = [0]
 
-    return Q, reste
+    return [Q, reste]
 
 
 def est_premier(L1):
@@ -215,7 +252,7 @@ def decomposition(l1):
     L1 = deepcopy(l1)
     liste_de_premier = listedepremier(100)
     decomposition1 = []
-    while not L1 in (liste_de_premier):
+    while L1 not in (liste_de_premier):
         for element in liste_de_premier:
 
             x, y = division(L1, element)
@@ -253,65 +290,3 @@ def maximum(L1):
         if EstPlusGrand(element, m):
             m = element
     return m
-
-
-def euclide_etendue(L1, L2):
-    L=deepcopy(L2)
-    '''
-    prend en entré 2 listes et rend leurs pgcd et les deux coef de bezout sous formes de listes
-    '''
-    echange = False
-    if EstPlusGrand(L2, L1):
-        L2, L1 = L1, L2
-        echange = True
-    x=[1]
-    X=[0]
-    y=[0]
-    Y=[1]
-    while L2!=[0]:
-        Q= division(L1, L2)[0]
-        L1, L2 = L2, division(L1, L2)[1]
-        print(L1,L2)
-        t=soustraction(x,multiplication(Q,X))
-        X, x = t, X
-        c=soustraction(y,multiplication(Q,Y))
-        Y, y = c, Y
-    if echange:
-        x, y = y, x
-
-    if x[0]=="negatif":
-        x.remove('negatif')
-        print(x)
-        g=soustraction(L,x)
-        x=g
-    return L1,x,y #on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
-
-
-def passage_binaire(l1):
-    L1=deepcopy(l1)
-    res=[]
-    while L1 !=[0] and L1!=[1] and L1!=[]:
-        L1,y=division(L1,[2])
-
-        res=y+res
-    if L1==[1]:
-
-        res=[1]+res
-    return(res)
-
-
-def expodentationmodulaire(l1,exposant,module):
-    L1=deepcopy(l1)
-    res=L1
-    expobinaire=passage_binaire(exposant)
-    for i in range (1,len(expobinaire)):
-        res=multiplication(res,res)
-        modulo(res,module)
-        if expobinaire[i]==1:
-            res=multiplication(res,L1)
-            res=modulo(res,module)
-    if expobinaire[-1]==1:
-        res=multiplication(res,L1)
-        res=modulo(res,module)
-
-    return(res)
