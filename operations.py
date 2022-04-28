@@ -129,7 +129,7 @@ def EstPlusGrand(L1, L2):
     return False
 
 
-def expodentation(L1, exp, mod):
+def expodentation_modulaire(L1, exp, mod):
     liste_exposant = decomposition(exp)
     res = [1]
     for i in range(len(liste_exposant)):
@@ -138,7 +138,7 @@ def expodentation(L1, exp, mod):
         res = modulo(multiplication(res, l2), mod)
     return res
 
-
+"""
 def listpremiers(n):
     k = []
     i = 2
@@ -153,7 +153,7 @@ def listpremiers(n):
 
         i += 1
     return k
-
+"""
 
 def listedepremier(n):
     res = []
@@ -290,3 +290,73 @@ def maximum(L1):
         if EstPlusGrand(element, m):
             m = element
     return m
+
+def passage_binaire(l1):
+    L1=deepcopy(l1)
+    res=[]
+    while L1 !=[0] and L1!=[1] and L1!=[]:
+        L1,y=division(L1,[2])
+
+        res=y+res
+    if L1==[1]:
+
+        res=[1]+res
+    return(res)
+
+def expodentation(l1,exposant):##attendtion l'exposant est une liste
+    L1=deepcopy(l1)
+    res=L1
+    expobinaire=passage_binaire(exposant)
+    for i in range (1,len(expobinaire)):
+        res=multiplication(res,res)
+        if expobinaire[i]==1:
+            res=multiplication(res,L1)
+
+    return(res)
+
+def expodentationmodulaire(l1,exposant,module):
+    L1=deepcopy(l1)
+    res=L1
+    expobinaire=passage_binaire(exposant)
+    for i in range (1,len(expobinaire)):
+        res=multiplication(res,res)
+        modulo(res,module)
+        if expobinaire[i]==1:
+            res=multiplication(res,L1)
+            res=modulo(res,module)
+    if expobinaire[-1]==1:
+        res=multiplication(res,L1)
+        res=modulo(res,module)
+
+    return(res)
+
+def euclide_etendue(L1, L2):
+    L=deepcopy(L2)
+    '''
+    prend en entré 2 listes et rend leurs pgcd et les deux coef de bezout sous formes de listes
+    '''
+    echange = False
+    if EstPlusGrand(L2, L1):
+        L2, L1 = L1, L2
+        echange = True
+    x=[1]
+    X=[0]
+    y=[0]
+    Y=[1]
+    while L2!=[0]:
+        Q= division(L1, L2)[0]
+        L1, L2 = L2, division(L1, L2)[1]
+        print(L1,L2)
+        t=soustraction(x,multiplication(Q,X))
+        X, x = t, X
+        c=soustraction(y,multiplication(Q,Y))
+        Y, y = c, Y
+    if echange:
+        x, y = y, x
+
+    if x[0]=="negatif":
+        x.remove('negatif')
+        print(x)
+        g=soustraction(L,x)
+        x=g
+    return L1,x,y #on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
