@@ -201,13 +201,11 @@ def division(l1, l2):  # principe comme au college division euclidienne
         ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes et on vire les element de L1 l'on remplace par newdecoupage
             if len(L1) != 0:
                 L1.pop(0)
-                if L1 == [
-                    0 for q in range(len(L1))
-                ]:  # ATTETION RAJOUTER MAIS CAS PARTICULIER A VOIR SI IL PEUT PAS Y AVOIR D'AUTRE MOMENT OU CA BEUG
-                    Q = Q + soustraction(i, [1])
-                    for s in range(len(L1)):
-                        Q = Q + [0]
-                    break
+             if L1 == [0 for q in range(len(L1)]:  # ATTETION RAJOUTER MAIS CAS PARTICULIER A VOIR SI IL PEUT PAS Y AVOIR D'AUTRE MOMENT OU CA BEUG
+                 Q = Q + soustraction(i, [1])
+                 for s in range(len(L1)):
+                    Q = Q + [0]
+                 break
 
         newdecoupage = supprime_zéros(newdecoupage)
         """for j in range (len(L1)):##rajouter
