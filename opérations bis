@@ -1,0 +1,312 @@
+from copy import *
+
+
+
+def NombreToListe(chiffre):
+    """Transformation d'un nombre en une liste
+
+    Fonction utile pour les nombres potentiellement très grands que python ne pourra pas traiter simplement.
+    Cela nous permet de créer une liste qui représentera un nombre où chaque case de la liste représente un chiffre composant le nombre.
+    L'unité sera la dernière case, le chiffre des dizaines sera l'avant-dernière, etc
+
+    Args :
+        chiffre (int): sera le nombre en entier qui sera, dans notre cas, très grand
+
+    Returns :
+        list : Le nombre converti en liste comme décrit plus haut
+    """
+    new = []
+    E = 1
+    while chiffre % E != chiffre:
+        E *= 10
+        new = [(chiffre % E) // (E / 10)] + new
+    return new
+
+
+def supprime_zéros(L1):
+    while True:
+        if L1[0] == 0 and len(L1) != 1:
+            del L1[0]
+        else:
+            t = False
+            return L1
+
+
+def est_plus_grand(L1, L2):  ##si egale return True
+    if L1 == L2:
+        return True
+    if len(L1) < len(L2):
+        L1 = [0 for i in range(len(L2) - len(L1))] + L1
+    else:
+        L2 = [0 for i in range(len(L1) - len(L2))] + L2
+    for i in range(len(L1)):
+        if L1[i] == L2[i]:
+            if i == len(L1) - 1:
+                return False
+            continue
+        elif L1[i] < L2[i]:
+            return False
+        else:
+            return True
+    return False
+
+def change_retenue(L, base=10):  # Notre fonction retenue
+    if len(L) == 0:
+        return [1]
+
+    else:
+        if L[-1] != (base - 1):
+            L[-1] += 1
+            return L
+        else:
+            L[-1] = 0
+        return change_retenue(L[:-1], base) + [L[-1]]  ##NE PAS OUBLIER LA BASE!!
+
+
+def modulo(L1, modulo):
+    x, reste = division(L1, modulo)
+    return reste
+
+
+def reconstruit(L):
+    new = []
+    for i in range(len(L)):
+        new.extend(L[i])
+    return new
+
+def decoupage(L, taille):
+    sub = len(L) / taille  # le nombre de division
+    if int(sub) != sub:
+        b = taille - (len(L) % taille)  # nombre de 0 à rajouter
+        sub = int(sub) + 1
+        for i in range(b):
+            L = [0] + L
+    new = []
+    for i in range(0, len(L), taille):  # décomposition dans une liste
+        new.append(L[i : i + taille])
+    return new
+
+
+def soustraction(
+    L1, L2, base=10
+):  ## les test marchent j'espere que tout marche pour la base 2 j'ai eu peur de devoir passer par le complementaire
+    if est_plus_grand(L2, L1):
+        L1, L2 = L2, L1
+    taille1 = len(L1)
+    taille2 = len(L2)
+    new = []
+    compteur = 0
+    for i in range(taille2):
+        L2[taille2 - 1 - i] += compteur
+        if L1[taille1 - 1 - i] - L2[taille2 - 1 - i] < 0:  # attention out of range
+            compteur = 1
+            new = [base + L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
+        else:
+            new = [L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
+            compteur = 0
+    if compteur == 1:
+        L1[taille1 - taille2 - 1] -= 1
+    new = L1[: (taille1 - taille2)] + new
+    supprime_zéros(new)  ##important pour la base 2
+    return new
+
+
+def addition(L1, L2, base=10):
+    if len(L1) < len(L2):
+        L1, L2 = L2, L1
+    taille1 = len(L1)
+    taille2 = len(L2)
+    new = []
+    supplementaire = []
+    min_taille = min(taille1, taille2)
+    retenue = 0
+
+    for i in range(min_taille):
+        if L1[taille1 - 1 - i] + L2[taille2 - 1 - i] + retenue < base:
+            new = [L1[taille1 - 1 - i] + L2[taille2 - 1 - i] + retenue] + new
+            retenue = 0
+        else:
+            new = [L1[taille1 - 1 - i] + L2[taille2 - 1 - i] + retenue - base] + new
+            retenue = 1
+    if taille1 == taille2 and retenue == 1:
+        new = [1] + new
+        retenue = 0
+    if taille1 != taille2:
+        if retenue == 1:
+            supplementaire = change_retenue(L1[: (taille1 - taille2)], base)
+        else:
+            supplementaire = L1[: (taille1 - taille2)]
+        new = supplementaire + new
+    return new
+
+
+def multiplication(L1, L2):
+    resultat = [0]
+    if len(L1) == len(L2):
+        L1 = [0] + L1
+    L1, L2 = max(L1, L2, key=len), min(L1, L2, key=len)
+    for i in range(len(L2)):
+        for j in range(len(L1)):
+            resultat = addition(
+                resultat,
+                (
+                    NombreToListe(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
+                    + [0 for i in range(i + j)]
+                ),
+            )
+    #supprime_zéros(resultat)#je viens de l'ajouter a voir si tout marche encore avec
+    return resultat
+
+
+def multiplication_negative(l1, l2, base=10):
+    L1=deepcopy(l1)
+    L2=deepcopy(l2)
+    negatif = False
+    if L1[0]==L2[0]=="negatif":
+        L1.remove("negatif")
+        L2.remove("negatif")
+    elif L1[0]=="negatif":
+        negatif = True
+        L1.remove("negatif")
+    elif L2[0]=="negatif":
+        negatif = True
+        L2.remove("negatif")
+    
+    resultat = [0]
+    if len(L1) == len(L2):
+        L1 = [0] + L1
+    L1, L2 = max(L1, L2, key=len), min(L1, L2, key=len)
+    for i in range(len(L2)):
+        for j in range(len(L1)):
+            resultat = addition(
+                resultat,
+                (
+                    NombreToListe(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
+                    + [0 for i in range(i + j)]
+                ),
+                base,
+            )
+    supprime_zéros(resultat)
+    if negatif:
+        resultat.insert(0,"negatif")
+    return resultat
+
+
+def soustraction_negative(
+    l1, l2, base=10
+):
+    L1=deepcopy(l1)
+    L2=deepcopy(l2)
+    negatif = False
+    if L1[0] == L2[0] == "negatif":
+        L1.remove("negatif")
+        L2.remove("negatif")
+        return soustraction_negative(L2, L1)
+    elif L2[0] == "negatif":
+        L2.remove("negatif")
+        return addition(L1, L2)
+    elif L1[0] == "negatif":
+        L1.remove("negatif")
+        c = addition(L2, L1)
+        c.insert(0, "negatif")
+        return c
+    elif est_plus_grand(L2, L1):
+        negatif = True
+        L1, L2 = L2, L1
+    taille1 = len(L1)
+    taille2 = len(L2)
+    new = []
+    compteur = 0
+    for i in range(taille2):
+        L2[taille2 - 1 - i] += compteur
+        if L1[taille1 - 1 - i] - L2[taille2 - 1 - i] < 0:  # attention out of range
+            compteur = 1
+            new = [base + L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
+        else:
+            new = [L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
+            compteur = 0
+    if compteur == 1:
+        L1[taille1 - taille2 - 1] -= 1
+    new = L1[: (taille1 - taille2)] + new
+    supprime_zéros(new)  ##important pour la base 2
+
+    if negatif:
+        new.insert(0, "negatif")
+
+    return new
+
+
+def euclide_etendue(L1, L2):
+    L=deepcopy(L2)
+    '''
+    prend en entré 2 listes et rend leurs pgcd et les deux coef de bezout sous formes de listes
+    '''
+    echange = False
+    if est_plus_grand(L2, L1):
+        L2, L1 = L1, L2
+        echange = True
+    x=[1]
+    X=[0]
+    y=[0]
+    Y=[1]
+    while L2!=[0]:
+        Q= division(L1, L2)[0]
+        L1, L2 = L2, division(L1, L2)[1]
+        t=soustraction_negative(x,multiplication_negative(Q,X))
+        X, x = t, X
+        c=soustraction_negative(y,multiplication_negative(Q,Y))
+        Y, y = c, Y
+    if echange:
+        x, y = y, x
+
+    if x[0]=="negatif":
+        x.remove('negatif')
+        g=soustraction_negative(L,x)
+        x=g
+    return L1,x,y #on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
+
+
+def PGCD(L1, L2):
+    if est_plus_grand(L2, L1):
+        L2, L1 = L1, L2
+
+    while L2!=[0]:
+        Q = division(L1, L2)[0]
+        L1, L2 = L2, division(L1, L2)[1]
+    return L1
+
+
+def expomodulaire(l1,exposant,module):
+    L1=deepcopy(l1)
+    res=[1]
+
+    expobinaire=passage_binaire(exposant)
+    for  i in range (len(expobinaire)-1,-1,-1):
+        if expobinaire[i]==1:
+            res=multiplication(res,L1)
+            res=modulo(res,module)
+        L1=multiplication(L1,L1)
+        L1=modulo(L1,module)
+    return res
+
+def passage_binaire(l1):
+    nombre=""
+    for i in l1:
+        nombre+=str(int(i))
+    res = str(bin(int(nombre)))[2:]
+    return NombreToListe(int(res))
+
+
+def division(L1,L2):
+    l1=""
+    l2=""
+    for i in L1:
+        l1+=(str(int(i)))
+    for j in L2:
+        l2+=str(int(j))
+    Q=int(l1)//int(l2)
+    r= int(l1)%int(l2)
+    R= NombreToListe(r)
+    if len(R)==0:
+        R=[0]
+    return [NombreToListe(Q),R]
