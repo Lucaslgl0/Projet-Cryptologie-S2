@@ -1,0 +1,18 @@
+from operations import NombreToListe, soustraction, multiplication, euclide_etendue, PGCD
+
+
+# Choix des nombres premiers et de l'exposant
+
+nb1 = NombreToListe(331)
+nb2 = NombreToListe(173)
+e = [7]
+
+# Création des cles
+
+phi_n = multiplication(soustraction(nb1, [1]), soustraction(nb2, [1]))
+if PGCD(e, phi_n) != [1]:
+    print("e n'est pas premier avec phi_n il faut changer soit e soit un nombre premier")
+n = multiplication(nb1, nb2)
+d = euclide_etendue(e, phi_n)[1]
+
+print("!!!!:créations des cles terminée:!!!!")
