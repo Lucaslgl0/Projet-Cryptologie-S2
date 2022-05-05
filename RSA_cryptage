@@ -1,0 +1,34 @@
+from divers import FichierEnTexte, TexteEnListe
+from operations import expomodulaire, decoupage, reconstruit
+
+# Récupération des cles publiques, l'exposant:e et le modulo:n
+
+from RSA_cles import n, e
+
+# Récupération du message
+# il ne recupére que la premiére ligne
+
+fichier = FichierEnTexte("message.txt")  # nom du fichier ou est le message
+#print(fichier)
+message = TexteEnListe(fichier)
+
+# Crytage
+
+new = decoupage(message, len(n) - 1)
+chiffré = []
+for mes in new:
+    ret = expomodulaire(mes, e, n)
+    rempli = len(n) - len(ret)
+    chiffré.append([0 for i in range(rempli)] + ret)
+chiffré = reconstruit(chiffré)
+
+# Création d'un fichier texte avec le message chiffré
+
+f_code = ""
+for i in chiffré:
+    f_code += str(int(i))
+code = open("code.txt", "w")
+code.write(f_code)
+code.close()
+
+print("!!!!:cryptage terminé:!!!!")
