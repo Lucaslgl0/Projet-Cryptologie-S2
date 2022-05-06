@@ -1,15 +1,32 @@
 from copy import *
+from math import *
+from operations_negatives import *
+
+############################################################################################################################
+# [------------------------------------------] DEBUT DE NOS FONCTIONS OUTILS [---------------------------------------------]#
+############################################################################################################################
 
 
 def supprime_zéros(liste):
-    for i in range(len(liste)):
-        if liste[0] == 0:
+    """Suppression des zéros à l'avant d'une liste
+
+    Cette fonction modifie la liste en enlevant les zéros inutiles devant.
+
+    Args :
+        liste (list) : qui sera notre liste de chiffres
+
+    Returns :
+        None
+    """
+    while True:
+        if liste[0] == 0 and len(liste) != 1:
             del liste[0]
         else:
-            break
+            t = False
+            return liste
 
 
-def NombreToListe(chiffre):
+def nombre_vers_liste(chiffre):
     """Transformation d'un nombre en une liste
 
     Fonction utile pour les nombres potentiellement très grands que python ne pourra pas traiter simplement.
@@ -30,28 +47,106 @@ def NombreToListe(chiffre):
     return new
 
 
-def soustraction(
-    L1, L2, base=10
-):  # les test marchent j'espere que tout marche pour la base 2 j'ai eu peur de devoir passer par le complementaire
-    if EstPlusGrand(L2, L1):
-        L1, L2 = L2, L1
-    taille1 = len(L1)
-    taille2 = len(L2)
-    new = []
-    compteur = 0
-    for i in range(taille2):
-        L2[taille2 - 1 - i] += compteur
-        if L1[taille1 - 1 - i] - L2[taille2 - 1 - i] < 0:  # attention out of range
-            compteur = 1
-            new = [base + L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
+def change_retenue(L, base=10):
+    """Ajout d'une retenue lors d'une opération
+
+    Cette fonction nous permet de supprimer le problème de retenue sur nos opérations.
+
+    Args :
+        L (list): notre liste en entrée sur laquelle sera appliquée la retenue
+        base (int): Par défaut 10, permet de changer de base si nous le voulons
+
+    Return :
+        None : modifie simplement la liste
+    """
+    if len(L) == 0:
+        return [1]
+
+    else:
+        if L[-1] != (base - 1):
+            L[-1] += 1
+            return L
         else:
-            new = [L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
-            compteur = 0
-    if compteur == 1:
-        L1[taille1 - taille2 - 1] -= 1
-    new = L1[: (taille1 - taille2)] + new
-    supprime_zéros(new)  # important pour la base 2
+            L[-1] = 0
+        return change_retenue(L[:-1], base) + [L[-1]]
+
+
+def est_plus_grand(L1, L2):
+    """Permet de comparer deux listes
+
+    Cette fonction vérifie, chiffre par chiffre dans la liste, si notre première liste est plus grande que la seconde.
+    Cela va nous être utile par la suite lors de différentes opérations.
+
+    Args :
+        L1, L2 (list): nos deux listes à comparer
+
+    Return :
+        boolean : rend True si L1 est plus grand ou égal à L2 et False sinon
+    """
+    if L1 == L2:
+        return True
+    if len(L1) < len(L2):
+        L1 = [0 for i in range(len(L2) - len(L1))] + L1
+    else:
+        L2 = [0 for i in range(len(L1) - len(L2))] + L2
+    for i in range(len(L1)):
+        if L1[i] == L2[i]:
+            if i == len(L1) - 1:
+                return False
+            continue
+        elif L1[i] < L2[i]:
+            return False
+        else:
+            return True
+    return False
+
+
+def reconstruit(L):
+    new = []
+    for i in range(len(L)):
+        new.extend(L[i])
     return new
+
+
+def decoupage(L, taille):
+    sub = len(L) / taille  # le nombre de division
+    if int(sub) != sub:
+        b = taille - (len(L) % taille)  # nombre de 0 à rajouter
+        sub = int(sub) + 1
+        for i in range(b):
+            L = [0] + L
+    new = []
+    for i in range(0, len(L), taille):  # décomposition dans une liste
+        new.append(L[i : i + taille])
+    return new
+
+
+def passage_binaire(l1):
+    L1 = deepcopy(l1)
+    res = []
+    r = 0
+    while L1 != [0] and L1 != [1] and L1 != []:
+
+        l2 = division(L1, [2])
+        L1 = l2[0]
+        y = l2[1]
+
+        res = y + res
+
+    if L1 == [1]:
+
+        res = [1] + res
+
+    return res
+
+
+############################################################################################################################
+# [--------------------------------------------------] FIN DE NOS OUTILS [-------------------------------------------------]#
+############################################################################################################################
+
+############################################################################################################################
+# [-----------------------------------------] DEBUT DE NOS FONCTIONS OPERATIONS[-------------------------------------------]#
+############################################################################################################################
 
 
 def addition(L1, L2, base=10):
@@ -83,21 +178,31 @@ def addition(L1, L2, base=10):
     return new
 
 
-def change_retenue(L, base=10):  # Notre fonction retenue
-    if len(L) == 0:
-        return [1]
-
-    else:
-        print(L[-1])
-        if L[-1] != (base - 1):
-            L[-1] += 1
-            return L
+def soustraction(
+    L1, L2, base=10
+):  # les test marchent j'espere que tout marche pour la base 2 j'ai eu peur de devoir passer par le complementaire
+    if est_plus_grand(L2, L1):
+        L1, L2 = L2, L1
+    taille1 = len(L1)
+    taille2 = len(L2)
+    new = []
+    compteur = 0
+    for i in range(taille2):
+        L2[taille2 - 1 - i] += compteur
+        if L1[taille1 - 1 - i] - L2[taille2 - 1 - i] < 0:  # attention out of range
+            compteur = 1
+            new = [base + L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
         else:
-            L[-1] = 0
-        return change_retenue(L[:-1], base) + [L[-1]]  # NE PAS OUBLIER LA BASE!!
+            new = [L1[taille1 - 1 - i] - L2[taille2 - 1 - i]] + new
+            compteur = 0
+    if compteur == 1:
+        L1[taille1 - taille2 - 1] -= 1
+    new = L1[: (taille1 - taille2)] + new
+    supprime_zéros(new)  # important pour la base 2
+    return new
 
 
-def multiplication(L1, L2):
+def multiplication(L1, L2, base=10):
     resultat = [0]
     if len(L1) == len(L2):
         L1 = [0] + L1
@@ -107,127 +212,48 @@ def multiplication(L1, L2):
             resultat = addition(
                 resultat,
                 (
-                    NombreToListe(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
+                    nombre_vers_liste(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
                     + [0 for i in range(i + j)]
                 ),
+                base,
             )
     return resultat
 
 
-def EstPlusGrand(L1, L2):
-    if len(L1) < len(L2):
-        L1 = [0 for i in range(len(L2) - len(L1))] + L1
-    else:
-        L2 = [0 for i in range(len(L1) - len(L2))] + L2
-    for i in range(len(L1)):
-        if L1[i] == L2[i]:
-            continue
-        elif L1[i] < L2[i]:
-            return False
-        else:
-            return True
-    return False
-
-
-def expodentation_modulaire(L1, exp, mod):
-    liste_exposant = decomposition(exp)
-    res = [1]
-    for i in range(len(liste_exposant)):
-        mult = exposant(L1, liste_exposant[0])
-        l2 = modulo(mult, mod)
-        res = modulo(multiplication(res, l2), mod)
-    return res
-
-"""
-def listpremiers(n):
-    k = []
-    i = 2
-    while len(k) != n + 1:
-        y = i
-        t = False
-        for element in k:
-            if y % element == 0:
-                t = True
-        if not t:
-            k += [i]
-
-        i += 1
-    return k
-"""
-
-def listedepremier(n):
-    res = []
-    x = listpremiers(n)
-    for element in x:
-        res += [NombreToListe(element)]
-    return res
-
-
-def division(l1, l2):  # principe comme au college division euclidienne
-    L1 = deepcopy(
-        l1
-    )  # On vas modifier les lites dans ce programme mieux vaux ne pas rendre le bon resultat et travailler apres avec des mauvaises liste
+def division(l1, l2):
+    L1 = deepcopy(l1)
     L2 = deepcopy(l2)
     Q = []
-    retenue = 0
-    while EstPlusGrand(L1, L2) or (
-        L1[0] == 0 and len(L1) > 1
-    ):  # le or L1[0] == 0 permet que si on as retourner un liste ayant que des 0 le programme tourne toujour
+    R = []
+    while est_plus_grand(L1, L2) or (L1[0] == 0 and len(L1) > 1):
 
-        decoupage = L1[
-            : ((len(L2) + 1 + retenue))
-        ]  # prog marche pas pour liste de meme taille
-        # le decoupage permet de faire comme pour la division euclidienne on prend seulement le premeir nombre ayant plus de chiffre que le diviseur(pour cela +1)
-        # le plus retenue c'est pour les cas particuliers dans le cas ou la nouvelle liste etais plus petite exemple 2639696/5256 il faut mettre un 0 en 2eme position
-        retenue = 0
+        if L1[0] == [0 for i in range(len(L1))]:
+            Q.append(0)
+            L1.pop(0)
+
+        decoupage = L1[: ((len(L2) + 1))]  # prog marche pas pour liste de meme taille
+
         decoupage = supprime_zéros(decoupage)
 
         i = [1]
-        while EstPlusGrand(decoupage, multiplication(i, L2)):
+        while est_plus_grand(decoupage, multiplication(i, L2)):
 
-            i = addition(
-                i, [1]
-            )  # on cherche le mutiple qui vas rendre l2 plus granq que le decoupage
+            i = addition(i, [1])
 
-        x = deepcopy(
-            i
-        )  # ragoujeter a voir c'etais chaud car av i et il changeais pour raison inconnue
-        newdecoupage = soustraction(
-            decoupage, multiplication(L2, soustraction(x, [1]))
-        )  # le decoupage que l'on gardre apres la soustraction attention i-1
+        newdecoupage = soustraction(decoupage, multiplication(L2, soustraction(i, [1])))
 
         for j in range(
             len(L2) + 1
-        ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes et on vire les element de L1 l'on remplace par newdecoupage
+        ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes
             if len(L1) != 0:
                 L1.pop(0)
-             if L1 == [0 for q in range(len(L1)]:  # ATTETION RAJOUTER MAIS CAS PARTICULIER A VOIR SI IL PEUT PAS Y AVOIR D'AUTRE MOMENT OU CA BEUG
-                 Q = Q + soustraction(i, [1])
-                 for s in range(len(L1)):
-                    Q = Q + [0]
-                 break
-
         newdecoupage = supprime_zéros(newdecoupage)
-        """for j in range (len(L1)):##rajouter
-            if L1[0]==0:
-                retenue.append(0)
-                L1.pop(0)
-            else:
-                break"""
-
-        if L1 != []:
-            if EstPlusGrand(L2, newdecoupage + [L1[0]]):
-                retenue += 1  # creation de la retenue si il faut
         L1 = newdecoupage + L1
+        print(L1)
 
         Q = Q + soustraction(i, [1])
 
-        for j in range(retenue):
-            Q = Q + [0]
-
-    reste = soustraction(
-        l1, multiplication(Q, l2)
-    )  # a partir de la c'est siple plus qu'une soustraction pour trouver le reste
+    reste = soustraction(l1, multiplication(Q, l2))
     supprime_zéros(reste)
     if reste == l2:
         Q = addition(Q, [1])
@@ -236,125 +262,62 @@ def division(l1, l2):  # principe comme au college division euclidienne
     return [Q, reste]
 
 
-def est_premier(L1):
-    i = [1]
-    while EstPlusGrand(L1, i):
-        x, y = division(L1, i)
-        if y == 0:
-            return False
-        addition(i, [1])
-    return True
-
-
-def decomposition(l1):
-    L1 = deepcopy(l1)
-    liste_de_premier = listedepremier(100)
-    decomposition1 = []
-    while L1 not in (liste_de_premier):
-        for element in liste_de_premier:
-
-            x, y = division(L1, element)
-
-            if y == [0]:
-
-                L1 = x
-                L1 = supprime_zéros(L1)
-                decomposition1 += [element]
-                break
-    decomposition1 += [L1]
-
-    return decomposition1
-
-
-print(decomposition([2, 0]))
-
-
-def exposant(L1, x):
-    resultat = [1]
-    while x != [0]:
-        x = soustraction(x, [1])
-        resultat = multiplication(resultat, L1)
-    return resultat
-
-
 def modulo(L1, modulo):
     x, reste = division(L1, modulo)
     return reste
 
 
-def maximum(L1):
-    m = L1[0]
-    for element in L1:
-        if EstPlusGrand(element, m):
-            m = element
-    return m
+def expo_modulaire(l1, exposant, module):
+    L1 = deepcopy(l1)
+    res = [1]
+    expobinaire = passage_binaire(exposant)
 
-def passage_binaire(l1):
-    L1=deepcopy(l1)
-    res=[]
-    while L1 !=[0] and L1!=[1] and L1!=[]:
-        L1,y=division(L1,[2])
+    for i in range(len(expobinaire) - 1, -1, -1):
+        if expobinaire[i] == 1:
+            res = multiplication(res, L1)
+            res = modulo(res, module)
 
-        res=y+res
-    if L1==[1]:
+        L1 = multiplication(L1, L1)
+        L1 = modulo(L1, module)
 
-        res=[1]+res
-    return(res)
+    return res
 
-def expodentation(l1,exposant):##attendtion l'exposant est une liste
-    L1=deepcopy(l1)
-    res=L1
-    expobinaire=passage_binaire(exposant)
-    for i in range (1,len(expobinaire)):
-        res=multiplication(res,res)
-        if expobinaire[i]==1:
-            res=multiplication(res,L1)
-
-    return(res)
-
-def expodentationmodulaire(l1,exposant,module):
-    L1=deepcopy(l1)
-    res=L1
-    expobinaire=passage_binaire(exposant)
-    for i in range (1,len(expobinaire)):
-        res=multiplication(res,res)
-        modulo(res,module)
-        if expobinaire[i]==1:
-            res=multiplication(res,L1)
-            res=modulo(res,module)
-    if expobinaire[-1]==1:
-        res=multiplication(res,L1)
-        res=modulo(res,module)
-
-    return(res)
 
 def euclide_etendue(L1, L2):
-    L=deepcopy(L2)
-    '''
+    L = deepcopy(L2)
+    """
     prend en entré 2 listes et rend leurs pgcd et les deux coef de bezout sous formes de listes
-    '''
+    """
     echange = False
-    if EstPlusGrand(L2, L1):
+    if est_plus_grand(L2, L1):
         L2, L1 = L1, L2
         echange = True
-    x=[1]
-    X=[0]
-    y=[0]
-    Y=[1]
-    while L2!=[0]:
-        Q= division(L1, L2)[0]
+    x = [1]
+    X = [0]
+    y = [0]
+    Y = [1]
+    while L2 != [0]:
+        Q = division(L1, L2)[0]
         L1, L2 = L2, division(L1, L2)[1]
-        print(L1,L2)
-        t=soustraction(x,multiplication(Q,X))
+        t = soustraction_negative(x, multiplication_negative(Q, X))
         X, x = t, X
-        c=soustraction(y,multiplication(Q,Y))
+        c = soustraction_negative(y, multiplication_negative(Q, Y))
         Y, y = c, Y
     if echange:
         x, y = y, x
 
-    if x[0]=="negatif":
-        x.remove('negatif')
-        print(x)
-        g=soustraction(L,x)
-        x=g
-    return L1,x,y #on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
+    if x[0] == "negatif":
+        x.remove("negatif")
+        g = soustraction_negative(L, x)
+        x = g
+    return L1, x, y  # on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
+
+
+def PGCD(L1, L2):
+    if est_plus_grand(L2, L1):
+        L2, L1 = L1, L2
+
+    while L2 != [0]:
+        Q = division(L1, L2)[0]
+        L1, L2 = L2, division(L1, L2)[1]
+    return L1
