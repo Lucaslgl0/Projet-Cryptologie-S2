@@ -1,4 +1,4 @@
-from operations import addition, multiplication, soustraction, division, exposant
+from operations_liste import addition, multiplication, soustraction, division
 import time
 import random
 import matplotlib.pyplot as plt
