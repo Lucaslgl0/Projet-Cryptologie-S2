@@ -1,46 +1,74 @@
 import copy
 
-nb1=193
-nb2=199
-messager="12345678900987654321" # le message ne peut pas commencer par 0 les int les font disparaitres
+nb1 = 193
+nb2 = 199
+messager = str(
+    input("entrer le code en chiffre: ")
+)  # le message ne peut pas commencer par 0 les int les font disparaitres
 
 # si une division commence par 0 ca  le suprimme a voir si ca arrive aussi avec les listes
 
-message= copy.copy(messager)
-n=nb1*nb2
+message = copy.copy(messager)
+n = nb1 * nb2
 print(n)
 
-sigma = len(str(n))-1 # la longeur de chaque division du message
-sub = len(message)/sigma # le nombre de division
-if int(sub)!=sub:
-    b= len(message)%sigma # nombre de 0 à rajouter
-    sub = int(sub)+1
+sigma = len(str(n)) - 1  # la longeur de chaque division du message
+sub = len(message) / sigma  # le nombre de division
+if int(sub) != sub:
+    b = int((int(sub) + 1 - sub) * sigma)  # nombre de 0 à rajouter
+    print(b)
+    sub = int(sub) + 1
     for i in range(b):
-        message="0"+message
-new=[]
-for i in range(0,len(message),sigma):#décomposition dans une liste
-    new+=[message[i:i+sigma]]
+        message = "0" + message
+new = []
+for i in range(0, len(message), sigma):  # décomposition dans une liste
+    new += [message[i : i + sigma]]
 
-print(new)
-phy= (nb1-1)*(nb2-1)
-e = 5 #choix de e qui soit premier avec phy j'ai pas fais de vérification
-d=1
-while d*e%phy!=1: #calcul de l'inverse
-    d+=1
+print("message décomposé:", new)
+phy = (nb1 - 1) * (nb2 - 1)
+e = 5  # choix de e qui soit premier avec phy j'ai pas fais de vérification
+d = 1
+while d * e % phy != 1:  # calcul de l'inverse
+    d += 1
 
 
-chiffré = []
+chiffré = ""
 clair = ""
 for i in new:
-    chiffré += [(int(i)**e)%n]
-print(chiffré)
+    c = (int(i) ** e) % n
+    s = str(c)
+    while len(s) < sigma:
+        s = "0" + s
+    for i in range(len(str(n)) - len(s)):
+        s = "0" + s
+    chiffré += s
+print("message chiffré:", chiffré)
 
-for i in chiffré:
-    clair += str((i**d)%n)
 
-print(clair)
+chiffré_coupe = []
 
-if messager!=clair:
+for i in range(0, len(chiffré), len(str(n))):  # décomposition dans une liste
+    chiffré_coupe += [chiffré[i : i + len(str(n))]]
+
+print("chiffré coupé:", chiffré_coupe)
+
+for i in chiffré_coupe:
+    partie = str((int(i) ** d) % n)
+    while len(partie) < sigma:
+        partie = "0" + partie
+    if i == chiffré_coupe[0]:
+        for j in partie:
+            if j == "0":
+                partie = partie[1:]
+            else:
+                break
+
+    print(partie)
+    clair += partie
+
+print("message en clair:", clair)
+
+if messager != clair:
     print("looser, surement un 0 en début de subdivision")
 else:
     print("message bien dechiffré")
