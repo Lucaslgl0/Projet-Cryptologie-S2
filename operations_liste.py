@@ -44,6 +44,8 @@ def nombre_vers_liste(chiffre):
     while chiffre % E != chiffre:
         E *= 10
         new = [(chiffre % E) // (E / 10)] + new
+    if new == []:
+        new = [0]
     return new
 
 
@@ -83,6 +85,8 @@ def est_plus_grand(L1, L2):
     Return :
         boolean : rend True si L1 est plus grand ou égal à L2 et False sinon
     """
+    L1 = supprime_zéros(L1)
+    L2 = supprime_zéros(L2)
     if L1 == L2:
         return True
     if len(L1) < len(L2):
@@ -171,7 +175,7 @@ def addition(L1, L2, base=10):
         retenue = 0
     if taille1 != taille2:
         if retenue == 1:
-            supplementaire = change_retenue(L1[: (taille1 - taille2)], base)
+            supplementaire = change_retenue(L1[: (taille1 - taille2)])
         else:
             supplementaire = L1[: (taille1 - taille2)]
         new = supplementaire + new
@@ -179,8 +183,12 @@ def addition(L1, L2, base=10):
 
 
 def soustraction(
-    L1, L2, base=10
+    l1, l2, base=10
 ):  # les test marchent j'espere que tout marche pour la base 2 j'ai eu peur de devoir passer par le complementaire
+
+    L1 = deepcopy(l1)
+    L2 = deepcopy(l2)
+
     if est_plus_grand(L2, L1):
         L1, L2 = L2, L1
     taille1 = len(L1)
@@ -215,11 +223,11 @@ def multiplication(L1, L2, base=10):
                     nombre_vers_liste(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
                     + [0 for i in range(i + j)]
                 ),
-                base,
             )
     return resultat
 
 
+"""
 def division(l1, l2):
     L1 = deepcopy(l1)
     L2 = deepcopy(l2)
@@ -260,6 +268,37 @@ def division(l1, l2):
         reste = [0]
 
     return [Q, reste]
+"""
+
+
+def division(l1, l2):
+    L1 = deepcopy(l1)
+    L2 = deepcopy(l2)
+    L1 = supprime_zéros(L1)
+    L2 = supprime_zéros(L2)
+    Q = []
+    restedecoupage = 0
+    decoupage = L1[: (len(L2))]
+    while est_plus_grand(L1, L2):
+        V = [0]
+        while est_plus_grand(decoupage, L2):
+            decoupage = soustraction(decoupage, L2)
+            V = addition([1], V)
+
+        Q = Q + V
+        if len(l1) - restedecoupage == len(L2):
+            break
+        restedecoupage += 1
+        decoupage = decoupage + [l1[len(L2) + restedecoupage - 1]]
+
+        if L1 == [0 for i in range(len(L1))]:
+            Q += [0 for j in range(len(L1))]
+    Q = supprime_zéros(Q)
+    decoupage = supprime_zéros(decoupage)
+    if decoupage == []:
+        decoupage = [0]
+
+    return [Q, decoupage]
 
 
 def modulo(L1, modulo):
