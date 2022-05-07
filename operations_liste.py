@@ -276,6 +276,8 @@ def division(l1, l2):
     L2 = deepcopy(l2)
     L1 = supprime_zéros(L1)
     L2 = supprime_zéros(L2)
+    if est_plus_grand(L2,L1):
+        return [[0],L1]
     if L1==L2:
         return [[1],[0]]
     Q = []
