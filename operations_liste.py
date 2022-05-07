@@ -444,3 +444,32 @@ def PGCD(L1, L2):
         Q = division(L1, L2)[0]
         L1, L2 = L2, division(L1, L2)[1]
     return L1
+
+def trouvepremier(n):
+    t=True
+    r=False
+    while t :
+        nombrepremier=[]
+        for i in range (n-1) : 
+            nombrepremier+=[randint(0,9)]
+        nombrepremier+=[randrange(1,10,2)]
+        b=randint(1,10**(n//2))
+        b=NombreToListe(b)
+        print(nombrepremier)
+        if expomodulaire(b,soustraction(nombrepremier,[1]),nombrepremier)==[1]:
+
+            for i in range (100):
+                print("AAAA")
+
+                b=randint(300,1300)
+                b=NombreToListe(b)
+                if expomodulaire(b,soustraction(nombrepremier,[1]),nombrepremier)==[1]:
+                    r=True
+
+                else:
+                    r=False
+                    break
+
+        if r:
+            t=False
+    return nombrepremier
