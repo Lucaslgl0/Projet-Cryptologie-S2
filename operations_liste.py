@@ -276,14 +276,18 @@ def division(l1, l2):
     L2 = deepcopy(l2)
     L1 = supprime_zéros(L1)
     L2 = supprime_zéros(L2)
+    if L1==L2:
+        return [[1],[0]]
     Q = []
     restedecoupage = 0
     decoupage = L1[: (len(L2))]
     while est_plus_grand(L1, L2):
         V = [0]
+
         while est_plus_grand(decoupage, L2):
             decoupage = soustraction(decoupage, L2)
             V = addition([1], V)
+
 
         Q = Q + V
         if len(l1) - restedecoupage == len(L2):
@@ -293,7 +297,7 @@ def division(l1, l2):
 
         if L1 == [0 for i in range(len(L1))]:
             Q += [0 for j in range(len(L1))]
-    Q = supprime_zéros(Q)
+
     decoupage = supprime_zéros(decoupage)
     if decoupage == []:
         decoupage = [0]
