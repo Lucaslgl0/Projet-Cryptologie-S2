@@ -125,22 +125,11 @@ def decoupage(L, taille):
 
 
 def passage_binaire(l1):
-    L1 = deepcopy(l1)
-    res = []
-    r = 0
-    while L1 != [0] and L1 != [1] and L1 != []:
-
-        l2 = division(L1, [2])
-        L1 = l2[0]
-        y = l2[1]
-
-        res = y + res
-
-    if L1 == [1]:
-
-        res = [1] + res
-
-    return res
+    nombre=""
+    for i in l1:
+        nombre+=str(int(i))
+    res = str(bin(int(nombre)))[2:]
+    return nombre_vers_liste(int(res))
 
 
 ############################################################################################################################
