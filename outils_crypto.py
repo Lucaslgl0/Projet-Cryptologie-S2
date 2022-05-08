@@ -1,12 +1,12 @@
-def FichierEnTexte(fichier):
+def fichier_en_texte(fichier):
     return open(fichier).readlines()[0]
 
 
-def TexteEnFichier(texte, nom):
+def texte_en_fichier(texte, nom):
     open(nom, "w+").write(texte)
 
 
-def TexteEnListe(texte):
+def texte_en_liste(texte):
     Liste = []
     for i in texte:
         temp = str(ord(i))
@@ -18,7 +18,7 @@ def TexteEnListe(texte):
     return Liste
 
 
-def ListeEnTexte(Liste):
+def liste_en_texte(Liste):
     texte = ''
     for i in range(0, len(Liste), 3):
         charactère = int(str(Liste[i]) + str(Liste[i + 1]) + str(Liste[i + 2]))
