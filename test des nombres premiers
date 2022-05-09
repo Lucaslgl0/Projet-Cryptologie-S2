@@ -1,69 +1,77 @@
 from math import sqrt
 from copy import deepcopy
 from operations_liste import (
-    NombreToListe,
+    nombre_vers_liste,
     multiplication,
     soustraction,
     euclide_etendue,
     PGCD,
-    expomodulaire,
-    supprime_zéros, decoupage, reconstruit
+    expo_modulaire,
+    supprime_zéros,
+    decoupage,
+    reconstruit,
 )
+
 def premiers(n):
-    prem=list(range(2,n+1))
-    k=2
-    nRacine=sqrt(n)
-    while k<nRacine:
-        prem=[p for p in prem if p<=k or p%k!=0]
-        k=prem[prem.index(k)+1]  # nouveau nombre premier
+    prem = list(range(2, n + 1))
+    k = 2
+    nRacine = sqrt(n)
+    while k < nRacine:
+        prem = [p for p in prem if p <= k or p % k != 0]
+        k = prem[prem.index(k) + 1]  # nouveau nombre premier
     return prem
-    
+
 
 premier = premiers(10000)
-message_initial = NombreToListe(132624476180365181016319098423565475983211)
+message_initial = nombre_vers_liste(132624476180365181016319098423565475983211)
 message = deepcopy(message_initial)
-
+exposant = [7]
 
 for i in range(250, 300):
-    for j in range(i+1, 301):
-        nombre_premier1 = NombreToListe(premier[i])
-        nombre_premier2 = NombreToListe(premier[j])
-        exposant = [6, 5, 5, 3, 7]
-        
+    for j in range(i + 1, 301):
+
+        nombre_premier1 = nombre_vers_liste(premier[i])
+        nombre_premier2 = nombre_vers_liste(premier[j])
+
         # Calcul des clés:
-        
-        phi_n = multiplication(soustraction(nombre_premier1, [1]), soustraction(nombre_premier2, [1]))
+
+        phi_n = multiplication(
+            soustraction(nombre_premier1, [1]), soustraction(nombre_premier2, [1])
+        )
         if PGCD(exposant, phi_n) != [1]:
-            # print("l'exposant n'est pas premier avec phi_n")
             break
         n = multiplication(nombre_premier1, nombre_premier2)
         inverse_e = euclide_etendue(exposant, phi_n)[1]
-        
+
         # Découpage du message en listes de tailles len(n)-1:
-        
+
         message_découpé = decoupage(message, len(n) - 1)
-        
+
         # Chiffrement du message:
-        
+
         message_chiffré = []
         for mes in message_découpé:
-            ret = expomodulaire(mes, exposant, n)
-            remplie = len(n) - len(ret)# on compléte pour avoir une liste de taille len(n)
+            ret = expo_modulaire(mes, exposant, n)
+            remplie = len(n) - len(
+                ret
+            )  # on compléte pour avoir une liste de taille len(n)
             message_chiffré.append([0 for i in range(remplie)] + ret)
-            
+
         # Déchiffrement du message
-        
+
         message_clair = []
         for chif in message_chiffré:
-            res = expomodulaire(chif, inverse_e, n)
-            remplie_bis = len(n) - 1 - len(res) # on veut retrouver une liste de taille len(n)-1
+            res = expo_modulaire(chif, inverse_e, n)
+            remplie_bis = (
+                len(n) - 1 - len(res)
+            )  # on veut retrouver une liste de taille len(n)-1
             message_clair.append([0 for i in range(remplie_bis)] + res)
-        
+
         # Reconstruction en une liste:
-        
+
         message_clair = reconstruit(message_clair)
         message_clair = supprime_zéros(message_clair)
         if message_clair != message_initial:
             print("fail", i, j, "enième itération", nombre_premier1, nombre_premier2)
-
+    
 print("fins des tests")
