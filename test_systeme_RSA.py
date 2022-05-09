@@ -1,0 +1,62 @@
+from math import sqrt
+from copy import deepcopy
+from operations_liste import (
+    nombre_vers_liste,
+    multiplication,
+    soustraction,
+    euclide_etendue,
+    PGCD,
+    expo_modulaire,
+    supprime_zéros,
+)
+from outils_crypto import *
+
+
+def premiers(n):
+    prem = list(range(2, n + 1))
+    k = 2
+    nRacine = sqrt(n)
+    while k < nRacine:
+        prem = [p for p in prem if p <= k or p % k != 0]
+        k = prem[prem.index(k) + 1]  # nouveau nombre premier
+    return prem
+
+
+premier = premiers(10000)
+messageR = nombre_vers_liste(132624476180365181016319098423565475983211)
+message = deepcopy(messageR)
+
+
+for i in range(250, 300):
+    for j in range(i + 1, 301):
+        nb1 = nombre_vers_liste(premier[i])
+        nb2 = nombre_vers_liste(premier[j])
+        e = [6, 5, 5, 3, 7]
+
+        phi_n = multiplication(soustraction(nb1, [1]), soustraction(nb2, [1]))
+        if PGCD(e, phi_n) != [1]:
+            # print("e n'est pas premier avec phi_n")
+            break
+        n = multiplication(nb1, nb2)
+        f = euclide_etendue(e, phi_n)[1]
+        # print("f:",f)
+        new = decoupage(message, len(n) - 1)
+        # print(new)
+        chiffré = []
+        for mes in new:
+            ret = expo_modulaire(mes, e, n)
+            rempli = len(n) - len(ret)
+            chiffré.append([0 for i in range(rempli)] + ret)
+        # print("chiffré:",chiffré)
+        clair = []
+        for chif in chiffré:
+            res = expo_modulaire(chif, f, n)
+            remplie = len(n) - 1 - len(res)
+            clair.append([0 for i in range(remplie)] + res)
+        # print("clair:",clair)
+        clair = reconstruit(clair)
+        clair = supprime_zéros(clair)
+        if clair != messageR:
+            print("fail", i, j, "enième itération", nb1, nb2)
+
+print("finis")

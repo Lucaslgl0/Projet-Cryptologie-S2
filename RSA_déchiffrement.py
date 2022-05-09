@@ -1,0 +1,44 @@
+from operations_liste import supprime_zéros, expo_modulaire
+from outils_crypto import liste_vers_texte, texte_vers_fichier, reconstruit, decoupage
+
+# Récupération de la cles privée d et du module n
+
+from RSA_cles import n, d
+
+
+# Rupération du message chiffré dans le fichier texte, code.txt
+
+fichier = open("message_déchiffré.txt").readlines()[0]
+
+L = []
+for i in range(len(fichier)):
+    L.append(int(fichier[i]))
+chiffré = decoupage(L, len(n))
+
+# Déchiffrement
+clair = []
+for chif in chiffré:
+    res = expo_modulaire(chif, d, n)
+    remplie = len(n) - 1 - len(res)
+    clair.append([0 for i in range(remplie)] + res)
+clair = reconstruit(clair)
+print("clair:", clair)
+clair = supprime_zéros(clair)
+super_clair = []
+for i in clair:
+    super_clair.append(int(i))
+
+# Transforme le message déchiffré en texte puis l'ouvre dans un fichier
+t = (
+    len(super_clair) / 3
+)  # notre programme de liste à texte prend 3 élements en même temps pour le code ASCII, cf Luigi
+print(len(super_clair))
+if t != int(t):
+    ajoute0 = 3 * (int(t) + 1) - len(super_clair)
+    for i in range(ajoute0):
+        super_clair = [0] + super_clair
+clair_texte = liste_vers_texte(super_clair)
+print(clair_texte)
+texte_vers_fichier(clair_texte, "message_déchiffré.txt")
+
+print("!!!!:déchiffrement terminée:!!!!")
