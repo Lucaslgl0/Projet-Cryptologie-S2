@@ -28,8 +28,11 @@ for i in clair:
     super_clair.append(int(i))
 
 # Transforme le message déchiffré en texte puis l'ouvre dans un fichier
-if len(super_clair)%3!=1:
-    print("erreur dans le découpage")
+t = (len(super_clair) / 3) 
+if t != int(t):
+    ajoute0 = 3 * (int(t) + 1) - len(super_clair)
+    for i in range(ajoute0):
+        super_clair = [0] + super_clair
  # notre programme de liste à texte prend 3 élements en même temps pour le code ASCII, cf Luigi
 
 clair_texte = liste_vers_texte(super_clair)
