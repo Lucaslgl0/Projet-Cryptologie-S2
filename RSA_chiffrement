@@ -28,7 +28,7 @@ chiffré = reconstruit(chiffré)# liste de chiffre
 f_code = ""
 for i in chiffré:
     f_code += str(int(i))
-code = open("message_déchiffré.txt", "w")
+code = open("message_chiffré.txt", "w")
 code.write(f_code)
 code.close()
 
