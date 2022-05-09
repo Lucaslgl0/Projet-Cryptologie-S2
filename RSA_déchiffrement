@@ -22,7 +22,6 @@ for chif in chiffré:
     remplie = len(n) - 1 - len(res)
     clair.append([0 for i in range(remplie)] + res)
 clair = reconstruit(clair)
-print("clair:",clair)
 clair = supprime_zéros(clair)
 super_clair = []
 for i in clair:
@@ -30,13 +29,11 @@ for i in clair:
 
 # Transforme le message déchiffré en texte puis l'ouvre dans un fichier
 t = len(super_clair)/3 # notre programme de liste à texte prend 3 élements en même temps pour le code ASCII, cf Luigi
-print(len(super_clair))
 if t!=int(t):
     ajoute0=3*(int(t)+1)-len(super_clair)
     for i in range(ajoute0):
         super_clair = [0] + super_clair
 clair_texte = liste_en_texte(super_clair)
-print(clair_texte)
 texte_en_fichier(clair_texte, "message_déchiffré.txt")
 
 print("!!!!:déchiffrement terminée:!!!!")
