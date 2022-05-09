@@ -8,7 +8,7 @@ from RSA_cles import n, d
 
 # Rupération du message chiffré dans le fichier texte, code.txt
 
-fichier = open("message_déchiffré.txt").readlines()[0]
+fichier = open("message_chiffré.txt").readlines()[0]
 
 L = []
 for i in range(len(fichier)):
@@ -22,7 +22,6 @@ for chif in chiffré:
     remplie = len(n) - 1 - len(res)
     clair.append([0 for i in range(remplie)] + res)
 clair = reconstruit(clair)
-print("clair:", clair)
 clair = supprime_zéros(clair)
 super_clair = []
 for i in clair:
@@ -38,7 +37,6 @@ if t != int(t):
     for i in range(ajoute0):
         super_clair = [0] + super_clair
 clair_texte = liste_vers_texte(super_clair)
-print(clair_texte)
 texte_vers_fichier(clair_texte, "message_déchiffré.txt")
 
 print("!!!!:déchiffrement terminée:!!!!")
