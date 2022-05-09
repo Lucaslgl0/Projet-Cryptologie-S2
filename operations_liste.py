@@ -302,6 +302,7 @@ def modulo(L1, modulo):
 
 def expo_modulaire(l1, exposant, module):
     L1 = deepcopy(l1)
+    L1 = supprime_zéros(L1)
     res = [1]
     expobinaire = passage_binaire(exposant)
 
