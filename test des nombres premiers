@@ -1,4 +1,6 @@
 from math import sqrt
+from copy import deepcopy
+
 
 def premiers(n):
     prem=list(range(2,n+1))
@@ -10,8 +12,7 @@ def premiers(n):
     return prem
     
     
-from copy import deepcopy
-from divers import premiers
+
 from operations_liste import (
     NombreToListe,
     multiplication,
