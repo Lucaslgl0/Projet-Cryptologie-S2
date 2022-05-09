@@ -43,8 +43,8 @@ def nombre_vers_liste(chiffre):
     while chiffre % E != chiffre:
         E *= 10
         new = [(chiffre % E) // (E / 10)] + new
-    if new == []:
-        new = [0]
+    #if new == []:
+        #new = [0]
     return new
 
 
