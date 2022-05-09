@@ -10,9 +10,9 @@ def premiers(n):
     return prem
     
     
-    from copy import deepcopy
+from copy import deepcopy
 from divers import premiers
-from operations import (
+from operations_liste import (
     NombreToListe,
     multiplication,
     soustraction,
