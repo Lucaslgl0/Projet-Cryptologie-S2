@@ -11,7 +11,7 @@ from RSA_cles import n, exposant
 fichier = fichier_en_texte("message.txt")  # nom du fichier ou est le message
 #print(fichier)
 message = texte_en_liste(fichier)
-print("message:",message)
+#print("message:",message)
 
 # Crytage
 
