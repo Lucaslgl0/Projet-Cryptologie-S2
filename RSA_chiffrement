@@ -1,33 +1,34 @@
-from divers import FichierEnTexte, TexteEnListe
-from operations import expomodulaire, decoupage, reconstruit
+from divers import fichier_en_texte, texte_en_liste
+from operations_liste import expo_modulaire, decoupage, reconstruit
 
-# Récupération des cles publiques, l'exposant:e et le modulo:n
+# Récupération des cles publiques, l'exposant et le modulo:n
 
-from RSA_cles import n, e
+from RSA_cles import n, exposant
 
 # Récupération du message
 # il ne recupére que la premiére ligne
 
-fichier = FichierEnTexte("message.txt")  # nom du fichier ou est le message
+fichier = fichier_en_texte("message.txt")  # nom du fichier ou est le message
 #print(fichier)
-message = TexteEnListe(fichier)
+message = texte_en_liste(fichier)
+print("message:",message)
 
 # Crytage
 
-new = decoupage(message, len(n) - 1)
+new = decoupage(message, len(n) - 1)# liste de liste de taille len(n)-1
 chiffré = []
 for mes in new:
-    ret = expomodulaire(mes, e, n)
-    rempli = len(n) - len(ret)
-    chiffré.append([0 for i in range(rempli)] + ret)
-chiffré = reconstruit(chiffré)
+    ret = expo_modulaire(mes, exposant, n)
+    rempli = len(n) - len(ret)# nombre de zero à rajouter à gauche
+    chiffré.append([0 for i in range(rempli)] + ret)# liste de liste de taille len(n)
+chiffré = reconstruit(chiffré)# liste de chiffre
 
 # Création d'un fichier texte avec le message chiffré
 
 f_code = ""
 for i in chiffré:
     f_code += str(int(i))
-code = open("code.txt", "w")
+code = open("message_déchiffré.txt", "w")
 code.write(f_code)
 code.close()
 
