@@ -2,13 +2,6 @@ from operations_liste import *
 from random import *
 
 
-class bcolors:
-    OK = "\033[92m"  # GREEN
-    WARNING = "\033[93m"  # YELLOW
-    FAIL = "\033[91m"  # RED
-    RESET = "\033[0m"  # RESET COLOR
-
-
 def test_NombreToListe():
     assert nombre_vers_liste(123) == [1, 2, 3]
 
@@ -113,29 +106,6 @@ def test_division_6():
     assert division([5, 3, 6, 8, 7, 2], [8, 7, 0, 9]) == [[6, 1], [5, 6, 2, 3]]
 
 
-for j in range(1, 10000):
-    L1 = nombre_vers_liste(j)
-    print(bcolors.WARNING, "L1 :", L1)
-    for i in range(1, j):
-        L2 = nombre_vers_liste(i)
-        division_test = division(L1, L2)
-        division_vraie = [nombre_vers_liste(j // i), nombre_vers_liste(j % i)]
-        if division_test == division_vraie:
-            continue
-            # print(bcolors.OK, division_test)
-        else:
-            print(
-                bcolors.FAIL,
-                L1,
-                L2,
-                "Ce qu'on obtient:",
-                division_test,
-                ". Ce qu'on devrait obtenir :",
-                division_vraie,
-            )
-            exit()
-
-
 def test_soustraction1():
     assert soustraction([1, 2], [1]) == nombre_vers_liste(11)
 
@@ -148,7 +118,61 @@ def test_soustraction3():
     assert soustraction([1, 0, 0], [9, 9]) == [1]
 
 
-def test_supprime_zéros():
+def test_supprime_zéro_1():
     L1 = [0, 0, 0, 1, 2, 0, 1, 0, 0]
     supprime_zéros(L1)
     assert L1 == [1, 2, 0, 1, 0, 0]
+
+
+def test_supprime_zéros_2():
+    L1 = [0, 0, 0, 0]
+    assert supprime_zéros(L1) == [0]
+
+
+def test_change_retenue_1():
+    assert change_retenue([9, 9]) == [1, 0, 0]
+
+
+def test_change_retenue_2():
+    assert change_retenue([4, 3]) == [4, 4]
+
+
+def test_PGCD_1():
+    assert PGCD([2, 2, 1], [7, 8, 2]) == [1, 7]
+
+
+def test_PGCD_2():
+    assert PGCD([8, 1, 1], [1, 2, 3, 7]) == [1]
+
+
+def test_expo_modulaire_1():
+    assert expo_modulaire([3, 7], [1, 7], [7, 9, 2, 6, 3, 4, 9, 0]) == [
+        6,
+        8,
+        1,
+        0,
+        7,
+        1,
+        1,
+        7,
+    ]
+
+
+def test_expo_modulaire_2():
+    assert expo_modulaire([2, 6], [2, 1], [8, 7, 6, 2, 3, 7, 6, 4, 3, 2, 9]) == [
+        5,
+        0,
+        8,
+        4,
+        5,
+        5,
+        0,
+        2,
+        9,
+        3,
+        3,
+    ]
+
+
+def test_sous_neg_1():
+    assert soustraction_negative()
