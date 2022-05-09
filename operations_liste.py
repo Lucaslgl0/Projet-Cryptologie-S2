@@ -7,16 +7,20 @@ from math import *
 
 
 def supprime_zéros(liste):
-    """Suppression des zéros à l'avant d'une liste
+    """Suppression des zéros 'inutiles' à l'avant d'une liste
 
-    Cette fonction modifie la liste en enlevant les zéros inutiles devant.
+    Cette fonction modifie la liste en enlevant les zéros inutiles qui se trouvent devant.
+    Cette fonction est essentielle pour nousdans certaine fonction qui ne vont pas fonctionner si des zéros se trouve en début de liste.
 
     Args :
-        liste (list) : qui sera notre liste de chiffres
+        liste (list) : qui sera notre liste de chiffres à corriger
 
     Returns :
-        None
+        None : La fonction ne renvoie rien mais modifie directement la liste.
+        (Update) : La fonction renvoie la liste modifiée également.
     """
+    if liste == []:
+        return liste
     while True:
         if liste[0] == 0 and len(liste) != 1:
             del liste[0]
@@ -29,7 +33,7 @@ def nombre_vers_liste(chiffre):
     """Transformation d'un nombre en une liste
 
     Fonction utile pour les nombres potentiellement très grands que python ne pourra pas traiter simplement.
-    Cela nous permet de créer une liste qui représentera un nombre où chaque case de la liste représente un chiffre composant le nombre.
+    Cela nous permet de créer une liste qui représentera un nombre où chaque case de la liste représente un chiffre composant le nombre. Tout notre système va utiliser des listes correspond à des nombres.
     L'unité sera la dernière case, le chiffre des dizaines sera l'avant-dernière, etc
 
     Args :
@@ -40,11 +44,10 @@ def nombre_vers_liste(chiffre):
     """
     new = []
     E = 1
+    chiffre = int(chiffre)
     while chiffre % E != chiffre:
         E *= 10
-        new = [(chiffre % E) // (E / 10)] + new
-    #if new == []:
-        #new = [0]
+        new = [int((chiffre % E) / (E // 10))] + new
     return new
 
 
@@ -58,7 +61,7 @@ def change_retenue(L, base=10):
         base (int): Par défaut 10, permet de changer de base si nous le voulons
 
     Return :
-        None : modifie simplement la liste
+        list : renvoie la liste de départ mais en ajoutant la retenue
     """
     if len(L) == 0:
         return [1]
@@ -89,9 +92,9 @@ def est_plus_grand(L1, L2):
     if L1 == L2:
         return True
     if len(L1) < len(L2):
-        L1 = [0 for i in range(len(L2) - len(L1))] + L1
-    else:
-        L2 = [0 for i in range(len(L1) - len(L2))] + L2
+        return False
+    elif len(L2) < len(L1):
+        return True
     for i in range(len(L1)):
         if L1[i] == L2[i]:
             if i == len(L1) - 1:
@@ -104,32 +107,53 @@ def est_plus_grand(L1, L2):
     return False
 
 
-def reconstruit(L):
-    new = []
-    for i in range(len(L)):
-        new.extend(L[i])
-    return new
-
-
-def decoupage(L, taille):
-    sub = len(L) / taille  # le nombre de division
-    if int(sub) != sub:
-        b = taille - (len(L) % taille)  # nombre de 0 à rajouter
-        sub = int(sub) + 1
-        for i in range(b):
-            L = [0] + L
-    new = []
-    for i in range(0, len(L), taille):  # décomposition dans une liste
-        new.append(L[i : i + taille])
-    return new
-
-
 def passage_binaire(l1):
-    nombre=""
-    for i in l1:
-        nombre+=str(int(i))
-    res = str(bin(int(nombre)))[2:]
-    return nombre_vers_liste(int(res))
+    """Convertisseur de la base 10 à la base 2
+
+    Cette fonction convertie la liste correponsant à un nombre en base 10 en une liste correspondant à ce même nombre en base 2.
+    Nous utilisons une technique vu au premier semestre avec M. Prcovic : Succession de divisions entières par 2 en notant les restes.
+
+    Args :
+        l1 (list): la liste (en  base 10) à convertir
+
+    Return :
+        list : rend la liste convertie en base 2
+    """
+    L1 = deepcopy(l1)
+    res = []
+    r = 0
+    while L1 != [0] and L1 != [1] and L1 != []:
+
+        l2 = division(L1, [2])
+        L1 = l2[0]
+        y = l2[1]
+
+        res = y + res
+
+    if L1 == [1]:
+
+        res = [1] + res
+
+    return res
+
+
+def PGCD(L1, L2):
+    """Trouver le PGCD entre 2 listes
+
+    Cette fonction nous permet de trouver le plus grand diviseur commun entre deux listes (correspondant à nos nombres).
+
+    Args :
+        L1, L2 (list): Les deux listes à comparer pour trouver leur PGCD
+
+    Return :
+        list : Le PGCD entre les deux listes en entrée
+    """
+    if est_plus_grand(L2, L1):
+        L2, L1 = L1, L2
+
+    while L2 != [0]:
+        L1, L2 = L2, division(L1, L2)[1]
+    return L1
 
 
 ############################################################################################################################
@@ -196,128 +220,6 @@ def soustraction(
     new = L1[: (taille1 - taille2)] + new
     supprime_zéros(new)  # important pour la base 2
     return new
-
-
-def multiplication(L1, L2, base=10):
-    resultat = [0]
-    if len(L1) == len(L2):
-        L1 = [0] + L1
-    L1, L2 = max(L1, L2, key=len), min(L1, L2, key=len)
-    for i in range(len(L2)):
-        for j in range(len(L1)):
-            resultat = addition(
-                resultat,
-                (
-                    nombre_vers_liste(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
-                    + [0 for i in range(i + j)]
-                ),
-            )
-    return resultat
-
-
-"""
-def division(l1, l2):
-    L1 = deepcopy(l1)
-    L2 = deepcopy(l2)
-    Q = []
-    R = []
-    while est_plus_grand(L1, L2) or (L1[0] == 0 and len(L1) > 1):
-
-        if L1[0] == [0 for i in range(len(L1))]:
-            Q.append(0)
-            L1.pop(0)
-
-        decoupage = L1[: ((len(L2) + 1))]  # prog marche pas pour liste de meme taille
-
-        decoupage = supprime_zéros(decoupage)
-
-        i = [1]
-        while est_plus_grand(decoupage, multiplication(i, L2)):
-
-            i = addition(i, [1])
-
-        newdecoupage = soustraction(decoupage, multiplication(L2, soustraction(i, [1])))
-
-        for j in range(
-            len(L2) + 1
-        ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes
-            if len(L1) != 0:
-                L1.pop(0)
-        newdecoupage = supprime_zéros(newdecoupage)
-        L1 = newdecoupage + L1
-        print(L1)
-
-        Q = Q + soustraction(i, [1])
-
-    reste = soustraction(l1, multiplication(Q, l2))
-    supprime_zéros(reste)
-    if reste == l2:
-        Q = addition(Q, [1])
-        reste = [0]
-
-    return [Q, reste]
-"""
-
-
-def division(l1, l2):
-    L1 = deepcopy(l1)
-    L2 = deepcopy(l2)
-    L1 = supprime_zéros(L1)
-    L2 = supprime_zéros(L2)
-    if est_plus_grand(L2,L1):
-        return [[0],L1]
-    if L1==L2:
-        return [[1],[0]]
-    Q = []
-    restedecoupage = 0
-    decoupage = L1[: (len(L2))]
-    while est_plus_grand(L1, L2):
-        V = [0]
-
-        while est_plus_grand(decoupage, L2):
-            decoupage = soustraction(decoupage, L2)
-            V = addition([1], V)
-
-
-        Q = Q + V
-        if len(l1) - restedecoupage == len(L2):
-            break
-        restedecoupage += 1
-        decoupage = decoupage + [l1[len(L2) + restedecoupage - 1]]
-
-        if L1 == [0 for i in range(len(L1))]:
-            Q += [0 for j in range(len(L1))]
-
-    decoupage = supprime_zéros(decoupage)
-    if decoupage == []:
-        decoupage = [0]
-
-    return [Q, decoupage]
-
-
-def modulo(L1, modulo):
-    x, reste = division(L1, modulo)
-    return reste
-
-
-def expo_modulaire(l1, exposant, module):
-    L1 = deepcopy(l1)
-    L1 = supprime_zéros(L1)
-    res = [1]
-    expobinaire = passage_binaire(exposant)
-
-    for i in range(len(expobinaire) - 1, -1, -1):
-        if expobinaire[i] == 1:
-            res = multiplication(res, L1)
-            res = modulo(res, module)
-
-        L1 = multiplication(L1, L1)
-        L1 = modulo(L1, module)
-
-    return res
-
-from copy import *
-from operations_liste import *
 
 
 def multiplication_negative(l1, l2, base=10):
@@ -396,6 +298,119 @@ def soustraction_negative(l1, l2, base=10):
     return new
 
 
+def multiplication(L1, L2, base=10):
+    resultat = [0]
+    if len(L1) == len(L2):
+        L1 = [0] + L1
+    L1, L2 = max(L1, L2, key=len), min(L1, L2, key=len)
+    for i in range(len(L2)):
+        for j in range(len(L1)):
+            resultat = addition(
+                resultat,
+                (
+                    nombre_vers_liste(L1[len(L1) - j - 1] * L2[len(L2) - i - 1])
+                    + [0 for i in range(i + j)]
+                ),
+            )
+    return resultat
+
+
+"""
+def division(l1, l2):
+    L1 = deepcopy(l1)
+    L2 = deepcopy(l2)
+    Q = []
+    R = []
+    while est_plus_grand(L1, L2) or (L1[0] == 0 and len(L1) > 1):
+
+        if L1[0] == [0 for i in range(len(L1))]:
+            Q.append(0)
+            L1.pop(0)
+
+        decoupage = L1[: ((len(L2) + 1))]  # prog marche pas pour liste de meme taille
+
+        decoupage = supprime_zéros(decoupage)
+
+        i = [1]
+        while est_plus_grand(decoupage, multiplication(i, L2)):
+
+            i = addition(i, [1])
+
+        newdecoupage = soustraction(decoupage, multiplication(L2, soustraction(i, [1])))
+
+        for j in range(
+            len(L2) + 1
+        ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes
+            if len(L1) != 0:
+                L1.pop(0)
+        newdecoupage = supprime_zéros(newdecoupage)
+        L1 = newdecoupage + L1
+        print(L1)
+
+        Q = Q + soustraction(i, [1])
+
+    reste = soustraction(l1, multiplication(Q, l2))
+    supprime_zéros(reste)
+    if reste == l2:
+        Q = addition(Q, [1])
+        reste = [0]
+
+    return [Q, reste]
+"""
+
+
+def division(l1, l2):
+    L1 = deepcopy(l1)
+    L2 = deepcopy(l2)
+    L1 = supprime_zéros(L1)
+    L2 = supprime_zéros(L2)
+    Q = []
+    restedecoupage = 0
+    decoupage = L1[: (len(L2))]
+    while est_plus_grand(L1, L2):
+        V = [0]
+        while est_plus_grand(decoupage, L2):
+            decoupage = soustraction(decoupage, L2)
+            V = addition([1], V)
+
+        Q = Q + V
+        if len(l1) - restedecoupage == len(L2):
+            break
+        restedecoupage += 1
+        decoupage = decoupage + [l1[len(L2) + restedecoupage - 1]]
+
+        if L1 == [0 for i in range(len(L1))]:
+            Q += [0 for j in range(len(L1))]
+    Q = supprime_zéros(Q)
+    decoupage = supprime_zéros(decoupage)
+    if decoupage == []:
+        decoupage = [0]
+
+    return [Q, decoupage]
+
+
+def modulo(L1, modulo):
+    x, reste = division(L1, modulo)
+    return reste
+
+
+def expo_modulaire(l1, exposant, module):
+    L1 = deepcopy(l1)
+    L1 = supprime_zéros(L1)
+    res = [1]
+    expobinaire = passage_binaire(exposant)
+
+    for i in range(len(expobinaire) - 1, -1, -1):
+        if expobinaire[i] == 1:
+            res = multiplication(res, L1)
+            res = modulo(res, module)
+
+        L1 = multiplication(L1, L1)
+        L1 = modulo(L1, module)
+
+    return res
+
+
 def euclide_etendue(L1, L2):
     L = deepcopy(L2)
     """
@@ -423,43 +438,4 @@ def euclide_etendue(L1, L2):
         x.remove("negatif")
         g = soustraction_negative(L, x)
         x = g
-    return L1, x, y  # on a l'égalité pgcd= x*L1+y*L2  ,l'inverse de  L1 modulo L2 est x
-
-
-def PGCD(L1, L2):
-    if est_plus_grand(L2, L1):
-        L2, L1 = L1, L2
-
-    while L2 != [0]:
-        Q = division(L1, L2)[0]
-        L1, L2 = L2, division(L1, L2)[1]
-    return L1
-
-def trouvepremier(n):
-    t=True
-    r=False
-    while t :
-        nombrepremier=[]
-        for i in range (n-1) : 
-            nombrepremier+=[randint(0,9)]
-        nombrepremier+=[randrange(1,10,2)]
-        b=randint(1,10**(n//2))
-        b=NombreToListe(b)
-        print(nombrepremier)
-        if expomodulaire(b,soustraction(nombrepremier,[1]),nombrepremier)==[1]:
-
-            for i in range (100):
-                print("AAAA")
-
-                b=randint(300,1300)
-                b=NombreToListe(b)
-                if expomodulaire(b,soustraction(nombrepremier,[1]),nombrepremier)==[1]:
-                    r=True
-
-                else:
-                    r=False
-                    break
-
-        if r:
-            t=False
-    return nombrepremier
+    return L1, x, y  # on a l'égalité pgcd= xL1+yL2  ,l'inverse de  L1 modulo L2 est x
