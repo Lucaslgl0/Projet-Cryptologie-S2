@@ -6,18 +6,14 @@ from operations_liste import expo_modulaire
 from RSA_cles import n, exposant
 
 # Récupération du message
-# il ne recupére que la premiére ligne
+# Attention seule la premiere ligne est lue
 
-fichier = fichier_vers_texte(
-    r"D:\Crypto Projet\operations\message.txt"
-)  # nom du fichier ou est le message
-# print(fichier)
+fichier = fichier_vers_texte("message.txt")  # nom du fichier ou est le message
 message = texte_vers_liste(fichier)
-print("message:", message)
 
 # Crytage
 
-new = decoupage(message, len(n) - 1)  # liste de liste de taille len(n)-1
+new = decoupage(message, len(n)-1)  # liste de liste de taille len(n)-1
 chiffré = []
 for mes in new:
     ret = expo_modulaire(mes, exposant, n)
@@ -34,4 +30,4 @@ code = open("message_chiffré.txt", "w")
 code.write(f_code)
 code.close()
 
-print("!!!!:cryptage terminé:!!!!")
+print("!!!!:chiffrement terminé:!!!!")
