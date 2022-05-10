@@ -323,50 +323,6 @@ def multiplication(L1, L2, base=10):
     return resultat
 
 
-"""
-def division(l1, l2):
-    L1 = deepcopy(l1)
-    L2 = deepcopy(l2)
-    Q = []
-    R = []
-    while est_plus_grand(L1, L2) or (L1[0] == 0 and len(L1) > 1):
-
-        if L1[0] == [0 for i in range(len(L1))]:
-            Q.append(0)
-            L1.pop(0)
-
-        decoupage = L1[: ((len(L2) + 1))]  # prog marche pas pour liste de meme taille
-
-        decoupage = supprime_zéros(decoupage)
-
-        i = [1]
-        while est_plus_grand(decoupage, multiplication(i, L2)):
-
-            i = addition(i, [1])
-
-        newdecoupage = soustraction(decoupage, multiplication(L2, soustraction(i, [1])))
-
-        for j in range(
-            len(L2) + 1
-        ):  # voila ou etaos ma faute depuis le debut envie de ma suisider fort putin de +1 pour 2h de taff yes
-            if len(L1) != 0:
-                L1.pop(0)
-        newdecoupage = supprime_zéros(newdecoupage)
-        L1 = newdecoupage + L1
-        print(L1)
-
-        Q = Q + soustraction(i, [1])
-
-    reste = soustraction(l1, multiplication(Q, l2))
-    supprime_zéros(reste)
-    if reste == l2:
-        Q = addition(Q, [1])
-        reste = [0]
-
-    return [Q, reste]
-"""
-
-
 def division(l1, l2):
     L1 = deepcopy(l1)
     L2 = deepcopy(l2)
