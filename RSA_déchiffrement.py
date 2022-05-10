@@ -6,7 +6,7 @@ from outils_crypto import liste_vers_texte, texte_vers_fichier, reconstruit, dec
 from RSA_cles import n, d
 
 
-# Rupération du message chiffré dans le fichier texte, code.txt
+# Recupération du message chiffré dans le fichier texte, chiffré.txt
 
 fichier = open("message_chiffré.txt").readlines()[0]
 
@@ -16,26 +16,29 @@ for i in range(len(fichier)):
 chiffré = decoupage(L, len(n))
 
 # Déchiffrement
+
 clair = []
 for chif in chiffré:
     res = expo_modulaire(chif, d, n)
-    remplie = len(n) - 1 - len(res)
+    remplie = len(n) - 1 - len(res) # permet de rendre des listes de taille len(n)-1
     clair.append([0 for i in range(remplie)] + res)
+
 clair = reconstruit(clair)
 clair = supprime_zéros(clair)
-super_clair = []
+message_dechiffré = []
 for i in clair:
-    super_clair.append(int(i))
+    message_dechiffré.append(int(i))
+
+# Ajout des zeros pouvant manquer pour le passage en code ASCCI, en debut du message 
+
+if len(message_dechiffré)%3!=0:
+    ajoute0 = 3 *((len(message_dechiffré)//3) + 1) - len(message_dechiffré)
+    for i in range(ajoute0):
+        message_dechiffré = [0] + message_dechiffré
 
 # Transforme le message déchiffré en texte puis l'ouvre dans un fichier
-t = (len(super_clair) / 3) 
-if t != int(t):
-    ajoute0 = 3 * (int(t) + 1) - len(super_clair)
-    for i in range(ajoute0):
-        super_clair = [0] + super_clair
- # notre programme de liste à texte prend 3 élements en même temps pour le code ASCII, cf Luigi
 
-clair_texte = liste_vers_texte(super_clair)
-texte_vers_fichier(clair_texte, "message_déchiffré.txt")
+passage_texte = liste_vers_texte(message_dechiffré)
+texte_vers_fichier(passage_texte, "message_déchiffré.txt")
 
 print("!!!!:déchiffrement terminée:!!!!")
