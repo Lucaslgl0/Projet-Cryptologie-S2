@@ -1,53 +1,136 @@
-from operations_liste import expo_modulaire, multiplication, nombre_vers_liste, supprime_zéros, soustraction, PGCD, euclide_etendue, liste_vers_nombre
-from outils_crypto import decoupage, reconstruit, texte_vers_liste, liste_vers_texte
+from operations_liste import (
+    expo_modulaire,
+    multiplication,
+    nombre_vers_liste,
+    supprime_zéros,
+    soustraction,
+    PGCD,
+    euclide_etendue,
+    liste_vers_nombre,
+)
+from outils_crypto import (
+    decoupage,
+    reconstruit,
+    texte_vers_liste,
+    liste_vers_texte,
+    fichier_vers_texte,
+    texte_vers_fichier,
+)
 
-message_en_texte = input("entré le message à chiffré:")
+texte = False
+reponse = input("Voulez-vous utiliser un fichier texte pour le message? [o/N] ")
+reponse = reponse.strip().lower()
+if reponse.startswith("o"):
+    print(
+        "OK, vous devez créer un fichier message.txt et y inscire le message à chiffrer sur la premiére ligne"
+    )
+    texte = True
+elif reponse.startswith("n") or reponse == "":
+    print("OK")
+else:
+    print("Répondez par 'o' ou 'n'")
+
+clés = False
+reponse_bis = input("Voulez-vous choisir les nombres premiers et l'exposant? [o/N] ")
+reponse_bis = reponse_bis.strip().lower()
+if reponse_bis.startswith("o"):
+    print("OK")
+    clés = True
+elif reponse_bis.startswith("n") or reponse_bis == "":
+    print("OK")
+else:
+    print("Répondez par 'o' ou 'n'")
+
+if not texte:
+    message_en_texte = input("entrer le message à chiffré:")
+else:
+    message_en_texte = fichier_vers_texte(
+        "message.txt"
+    )  # nom du fichier contenant le message
 
 # Choix des nombres premiers et de l'exposant
 
-nombre_premier1 = nombre_vers_liste(109)
-nombre_premier2 = nombre_vers_liste(331)
-exposant = [7]
+if not clés:  # paramètre par défaut
+    nombre_premier1 = nombre_vers_liste(10000005143)
+    nombre_premier2 = nombre_vers_liste(10000018097)
+    exposant = [7]
+else:
+    nb1 = int(input(" donner un 1er nombre premier(un entier): "))
+    nb2 = int(input(" donner un second nombre premier(un entier): "))
+    e = int(input(" donner l'exposant(un entier): "))
+    nombre_premier1 = nombre_vers_liste(nb1)
+    nombre_premier2 = nombre_vers_liste(nb2)
+    exposant = nombre_vers_liste(e)
 
 # Création des cles
 
-phi_n = multiplication(soustraction(nombre_premier1, [1]), soustraction(nombre_premier2, [1]))
+phi_n = multiplication(
+    soustraction(nombre_premier1, [1]), soustraction(nombre_premier2, [1])
+)
 if PGCD(exposant, phi_n) != [1]:
-    print("e n'est pas premier avec phi_n il faut changer soit l'exposant, soit les nombres premiers")
+    print(
+        "e n'est pas premier avec phi_n il faut changer soit l'exposant, soit les nombres premiers"
+    )
+    exit()
 n = multiplication(nombre_premier1, nombre_premier2)
-d = euclide_etendue(exposant, phi_n)[1]
+inverse_de_e = euclide_etendue(exposant, phi_n)[1]
+
 
 message = texte_vers_liste(message_en_texte)
 
+
 # Crytage
 
-new = decoupage(message, len(n)-1)  # liste de liste de taille len(n)-1
+new = decoupage(message, len(n) - 1)  # liste de liste de taille len(n)-1
 chiffré_découpé = []
 for mes in new:
     ret = expo_modulaire(mes, exposant, n)
     rempli = len(n) - len(ret)  # nombre de zero à rajouter à gauche
-    chiffré_découpé.append([0 for i in range(rempli)] + ret)  # liste de liste de taille len(n)
+    chiffré_découpé.append(
+        [0 for i in range(rempli)] + ret
+    )  # liste de liste de taille len(n)
+
 chiffré = reconstruit(chiffré_découpé)  # liste de chiffre
 
 # Création d'un fichier texte avec le message chiffré
 
-f_code = ""
-for i in chiffré:
-    f_code += str(int(i))
-code = open("message_chiffré_bis.txt", "w")
-code.write(f_code)
-code.close()
+if texte:
+    f_code = ""
+    for i in chiffré:
+        f_code += str(int(i))
+    code = open("message_chiffré.txt", "w")
+    code.write(f_code)
+    code.close()
 
 print("!!!!:chiffrement terminé:!!!!")
 
-print("voici la clé privé:", liste_vers_nombre(d))
+if texte:
+    print("le fichier message_chiffré.txt est crée")
+else:
+    print("message chiffré:", chiffré)
 
-clé_privé =int(input("entré la clés privé:")) #57142989931481742647 
+print("voici la clé privé:", liste_vers_nombre(inverse_de_e))
+
+# Clé privé
+
+# clé_privé =inverse_de_e
+
+clé_privé = int(input("entrer la clés privé:"))
 
 if type(clé_privé) == int:
     clé_privé = nombre_vers_liste(clé_privé)
-elif type(clé_privé)!=list:
+elif type(clé_privé) != list:
     print("erreur type clé privé")
+
+# Récupération du message chiffré
+
+if texte:
+    fichier = open("message_chiffré.txt").readlines()[0]
+
+    L = []
+    for i in range(len(fichier)):
+        L.append(int(fichier[i]))
+    chiffré_découpé = decoupage(L, len(n))
 
 # Déchiffrement
 
@@ -56,7 +139,7 @@ print("!!!Debut déchiffrement!!!")
 clair = []
 for chif in chiffré_découpé:
     res = expo_modulaire(chif, clé_privé, n)
-    remplie = len(n) - 1 - len(res) # permet de rendre des listes de taille len(n)-1
+    remplie = len(n) - 1 - len(res)  # permet de rendre des listes de taille len(n)-1
     clair.append([0 for i in range(remplie)] + res)
 
 clair = reconstruit(clair)
@@ -65,17 +148,25 @@ message_dechiffré = []
 for i in clair:
     message_dechiffré.append(int(i))
 
-# Ajout des zeros pouvant manquer pour le passage en code ASCCI, en debut du message 
+# Ajout des zeros pouvant manquer pour le passage en code ASCCI, en debut du message
 
-if len(message_dechiffré)%3!=0:
-    ajoute0 = 3 *((len(message_dechiffré)//3) + 1) - len(message_dechiffré)
+if len(message_dechiffré) % 3 != 0:
+    ajoute0 = 3 * ((len(message_dechiffré) // 3) + 1) - len(message_dechiffré)
     for i in range(ajoute0):
         message_dechiffré = [0] + message_dechiffré
+
+print("!!!Fin du déchiffrement!!!")
 
 # Transforme le message déchiffré en texte
 
 passage_texte = liste_vers_texte(message_dechiffré)
 
-print("!!!Fin du déchiffrement!!!")
+# ouvre le message déchiffré dans un fichier
 
-print("message déchiffré:", passage_texte)
+if texte:
+    texte_vers_fichier(passage_texte, "message_déchiffré.txt")
+else:
+    print("message déchiffré:", passage_texte)
+
+print("FIN DU PROGRAMME")
+
