@@ -1,0 +1,81 @@
+from operations_liste import expo_modulaire, multiplication, nombre_vers_liste, supprime_zéros, soustraction, PGCD, euclide_etendue, liste_vers_nombre
+from outils_crypto import decoupage, reconstruit, texte_vers_liste, liste_vers_texte
+
+message_en_texte = input("entré le message à chiffré:")
+
+# Choix des nombres premiers et de l'exposant
+
+nombre_premier1 = nombre_vers_liste(109)
+nombre_premier2 = nombre_vers_liste(331)
+exposant = [7]
+
+# Création des cles
+
+phi_n = multiplication(soustraction(nombre_premier1, [1]), soustraction(nombre_premier2, [1]))
+if PGCD(exposant, phi_n) != [1]:
+    print("e n'est pas premier avec phi_n il faut changer soit l'exposant, soit les nombres premiers")
+n = multiplication(nombre_premier1, nombre_premier2)
+d = euclide_etendue(exposant, phi_n)[1]
+
+message = texte_vers_liste(message_en_texte)
+
+# Crytage
+
+new = decoupage(message, len(n)-1)  # liste de liste de taille len(n)-1
+chiffré_découpé = []
+for mes in new:
+    ret = expo_modulaire(mes, exposant, n)
+    rempli = len(n) - len(ret)  # nombre de zero à rajouter à gauche
+    chiffré_découpé.append([0 for i in range(rempli)] + ret)  # liste de liste de taille len(n)
+chiffré = reconstruit(chiffré_découpé)  # liste de chiffre
+
+# Création d'un fichier texte avec le message chiffré
+
+f_code = ""
+for i in chiffré:
+    f_code += str(int(i))
+code = open("message_chiffré_bis.txt", "w")
+code.write(f_code)
+code.close()
+
+print("!!!!:chiffrement terminé:!!!!")
+
+print("voici la clé privé:", liste_vers_nombre(d))
+
+clé_privé =int(input("entré la clés privé:")) #57142989931481742647 
+
+if type(clé_privé) == int:
+    clé_privé = nombre_vers_liste(clé_privé)
+elif type(clé_privé)!=list:
+    print("erreur type clé privé")
+
+# Déchiffrement
+
+print("!!!Debut déchiffrement!!!")
+
+clair = []
+for chif in chiffré_découpé:
+    res = expo_modulaire(chif, clé_privé, n)
+    remplie = len(n) - 1 - len(res) # permet de rendre des listes de taille len(n)-1
+    clair.append([0 for i in range(remplie)] + res)
+
+clair = reconstruit(clair)
+clair = supprime_zéros(clair)
+message_dechiffré = []
+for i in clair:
+    message_dechiffré.append(int(i))
+
+# Ajout des zeros pouvant manquer pour le passage en code ASCCI, en debut du message 
+
+if len(message_dechiffré)%3!=0:
+    ajoute0 = 3 *((len(message_dechiffré)//3) + 1) - len(message_dechiffré)
+    for i in range(ajoute0):
+        message_dechiffré = [0] + message_dechiffré
+
+# Transforme le message déchiffré en texte
+
+passage_texte = liste_vers_texte(message_dechiffré)
+
+print("!!!Fin du déchiffrement!!!")
+
+print("message déchiffré:", passage_texte)
