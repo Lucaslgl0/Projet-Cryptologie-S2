@@ -1,7 +1,7 @@
 from operations_liste import expo_modulaire, multiplication, nombre_vers_liste, supprime_zéros, soustraction, PGCD, euclide_etendue, liste_vers_nombre
 from outils_crypto import decoupage, reconstruit, texte_vers_liste, liste_vers_texte, fichier_vers_texte
 
-message_en_texte = input("entré le message à chiffré:")
+message_en_texte = input("entrer le message à chiffré:")
 
 # Choix des nombres premiers et de l'exposant
 
@@ -42,7 +42,7 @@ print("!!!!:chiffrement terminé:!!!!")
 
 print("voici la clé privé:", liste_vers_nombre(d))
 
-clé_privé =int(input("entré la clés privé:")) #57142989931481742647 
+clé_privé =int(input("entrer la clés privé:")) #57142989931481742647 
 
 if type(clé_privé) == int:
     clé_privé = nombre_vers_liste(clé_privé)
